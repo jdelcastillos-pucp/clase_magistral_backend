@@ -6,7 +6,7 @@ Esta aplicación es un demo educativo para una clase de DevSecOps. Proporciona u
 
 - `src/lambda.js`: lógica de la Lambda que construye el grafo y atiende `GET` con `queryStringParameters.search`.
 - `data/courses.json`: datos empaquetados junto al código.
-- Lambda Function URL expone la API directamente sin API Gateway.
+- API Gateway (HTTP API) expone la Lambda (proxy v2.0). Nota: en el Learner Lab las Function URLs públicas dan 403 por SCP, por eso se usa API Gateway.
 - Respuesta JSON:
   - `nodes`: lista de cursos
   - `edges`: lista de aristas `{from,to,type}`
