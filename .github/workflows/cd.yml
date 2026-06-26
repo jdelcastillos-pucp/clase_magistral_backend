@@ -1,8 +1,9 @@
-name: CI
+name: CD
 
-# CI: se ejecuta en cada Pull Request a main (gate antes de mergear).
+# CD: se ejecuta en push a main (tras mergear). Revalida quality + security y,
+# solo si ambos pasan, actualiza el código de la Lambda.
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -41,7 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # semgrep ci hace scan diff-aware en PRs
+          fetch-depth: 0
 
       - name: Semgrep CI (bloqueante; sube resultados a semgrep.dev)
         env:
@@ -49,3 +50,25 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           semgrep ci --config p/default --config p/javascript
+
+  deploy:
+    needs: [quality, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # Sin dependencias de producción: no se incluye lockfile en el bundle.
+      - name: Package Lambda deployment bundle
+        run: zip -r function.zip src/lambda.js data/courses.json package.json
+
+      - name: Update Lambda function code
+        run: aws lambda update-function-code --function-name pucp-malla-api --zip-file fileb://function.zip
