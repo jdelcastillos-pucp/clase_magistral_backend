@@ -1,0 +1,18 @@
+{
+  "name": "malla-curricular-backend",
+  "version": "1.0.0",
+  "description": "Serverless Lambda API para la malla curricular de Ingeniería Informática PUCP.",
+  "type": "module",
+  "main": "src/lambda.js",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "test": "node --test tests/lambda.test.js",
+    "coverage": "c8 --reporter=lcov --reporter=text node --test tests/lambda.test.js"
+  },
+  "devDependencies": {
+    "c8": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
