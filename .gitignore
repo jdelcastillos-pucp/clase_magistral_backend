@@ -1,0 +1,4 @@
+node_modules/
+coverage/
+function.zip
+npm-debug.log
